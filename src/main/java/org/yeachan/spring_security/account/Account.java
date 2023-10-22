@@ -4,6 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Entity
 public class Account {
@@ -47,7 +48,7 @@ public class Account {
         this.role = role;
     }
 
-    public void encodePassword() {
-        this.password="{noop}"+this.password;
+    public void encodePassword(PasswordEncoder passwordEncoder) {
+        this.password=passwordEncoder.encode(this.password);
     }
 }
