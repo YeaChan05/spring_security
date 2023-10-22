@@ -25,8 +25,9 @@ dependencies {
 
 	implementation 'org.springframework.data:spring-data-jpa'
 	implementation 'com.h2database:h2'
+	testImplementation 'org.springframework.security:spring-security-test'
 }
 
-tasks.named('test') {
+tasks.named('test') {4
 	useJUnitPlatform()
 }
