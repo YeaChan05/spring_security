@@ -27,7 +27,7 @@ public class AccountService implements UserDetailsService {
         return User.builder()
                 .username(account.getUsername())
                 .password(account.getPassword())
-                .roles(account.getRole())
+                .roles(account.getRole())//[ROLE_권한]형식으로 권한을 주입받음
                 .build();
     }
 
