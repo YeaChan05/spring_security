@@ -25,13 +25,13 @@ public class SecurityConfig {
         return roleHierarchy;
     }
     @Bean
-    public SecurityExpressionHandler<FilterInvocation> webSecurityExpressionHandler() {
+    public SecurityExpressionHandler<FilterInvocation> webSecurityExpressionHandlerImpl() {
         DefaultWebSecurityExpressionHandler handler = new DefaultWebSecurityExpressionHandler();
         handler.setRoleHierarchy(roleHierarchy());
         return handler;
     }
 
-        @Bean
+    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(registry ->//http 요청에 대한 인가 설정
                         registry.requestMatchers("/", "/info","/account/**").permitAll()
@@ -42,7 +42,7 @@ public class SecurityConfig {
                 .formLogin(Customizer.withDefaults())
                 .httpBasic(Customizer.withDefaults());
 
-        return http.build();
+            return http.build();
     }
 
     private AuthorizationDecision authorizationDecision(Supplier<Authentication> authenticationSupplier, RequestAuthorizationContext requestAuthorizationContext) {
