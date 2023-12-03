@@ -44,6 +44,7 @@ public class SecurityConfig {
                         registry.requestMatchers("/", "/info","/account/**").permitAll()
                                 .requestMatchers("/admin").access(this::authorizationDecision)
                                 .requestMatchers("/user").hasRole("USER")
+//                                .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()//이렇게하면 filter를 전부 다 탄다.
                                 .anyRequest().authenticated()
                 )
                 .formLogin(Customizer.withDefaults())
