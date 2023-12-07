@@ -16,6 +16,8 @@ import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
+import org.springframework.security.web.savedrequest.NullRequestCache;
+import org.springframework.security.web.savedrequest.RequestCache;
 
 import java.util.function.Supplier;
 
@@ -27,6 +29,7 @@ public class SecurityConfig {
         roleHierarchy.setHierarchy("ROLE_ADMIN > ROLE_USER");
         return roleHierarchy;
     }
+
     @Bean
     public SecurityExpressionHandler<FilterInvocation> webSecurityExpressionHandlerImpl() {
         DefaultWebSecurityExpressionHandler handler = new DefaultWebSecurityExpressionHandler();
@@ -41,17 +44,23 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        RequestCache nullRequestCache = new NullRequestCache();
+
         http.authorizeHttpRequests(registry ->//http 요청에 대한 인가 설정
-                        registry.requestMatchers("/", "/info","/account/**").permitAll()
-                                .requestMatchers("/admin").access(this::authorizationDecision)
-                                .requestMatchers("/user").hasRole("USER")
+                                registry.requestMatchers("/", "/info", "/account/**", "/signup").permitAll()
+                                        .requestMatchers("/admin").access(this::authorizationDecision)
+                                        .requestMatchers("/user").hasRole("USER")
 //                                .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()//이렇게하면 filter를 전부 다 탄다.
-                                .anyRequest().authenticated()
+                                        .anyRequest().authenticated()
                 )
-                .formLogin(Customizer.withDefaults())
+                .requestCache((cache) -> cache
+                        .requestCache(nullRequestCache)
+                )
+                .formLogin(login -> login
+                            .defaultSuccessUrl("/"))
                 .httpBasic(Customizer.withDefaults());
         SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
-            return http.build();
+        return http.build();
     }
 
     private AuthorizationDecision authorizationDecision(Supplier<Authentication> authenticationSupplier, RequestAuthorizationContext requestAuthorizationContext) {
