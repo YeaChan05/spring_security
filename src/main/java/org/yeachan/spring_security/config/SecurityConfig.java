@@ -57,8 +57,10 @@ public class SecurityConfig {
                         .requestCache(nullRequestCache)
                 )
                 .formLogin(login -> login
-                            .defaultSuccessUrl("/"))
-                .httpBasic(Customizer.withDefaults());
+                        .defaultSuccessUrl("/"))
+                .httpBasic(Customizer.withDefaults())
+                .logout(logout -> logout.logoutSuccessUrl("/")
+                );
         SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
         return http.build();
     }
