@@ -1,5 +1,6 @@
 package org.yeachan.spring_security.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,11 +21,14 @@ import org.springframework.security.web.access.expression.DefaultWebSecurityExpr
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 import org.springframework.security.web.savedrequest.NullRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
+import org.yeachan.spring_security.account.AccountService;
 
 import java.util.function.Supplier;
 
 @Configuration
 public class SecurityConfig {
+    @Autowired
+    private AccountService accountService;
     @Bean
     public RoleHierarchy roleHierarchy() {
         RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
@@ -64,19 +68,23 @@ public class SecurityConfig {
                 )
                 .httpBasic(Customizer.withDefaults())
                 .logout(logout -> logout.logoutSuccessUrl("/"))
-                .sessionManagement(session->session
-                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                                .sessionFixation().changeSessionId()
-                                .invalidSessionUrl("/login")
-                                .maximumSessions(1).maxSessionsPreventsLogin(true)//세션 점유시 추가 로그인 불가
-                        )
-                .exceptionHandling(exceptionHandle ->exceptionHandle.accessDeniedHandler((request, response, accessDeniedException) -> {
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                        .sessionFixation().changeSessionId()
+                        .invalidSessionUrl("/login")
+                        .maximumSessions(1).maxSessionsPreventsLogin(true)//세션 점유시 추가 로그인 불가
+                )
+                .exceptionHandling(exceptionHandle -> exceptionHandle.accessDeniedHandler((request, response, accessDeniedException) -> {
                     UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-                    String username=principal.getUsername();
-                    System.out.println(username+"is denied to access "+request.getRequestURI());
+                    String username = principal.getUsername();
+                    System.out.println(username + "is denied to access " + request.getRequestURI());
                     response.sendRedirect("/access-denied");
-                }) )
-                ;
+                }))
+                .rememberMe(rememberMe->rememberMe
+
+                        .userDetailsService(accountService)
+                        .key("remember-me-sample"))
+        ;
         SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
         return http.build();
     }
