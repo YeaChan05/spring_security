@@ -10,6 +10,7 @@ import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.FilterInvocation;
@@ -61,7 +62,14 @@ public class SecurityConfig {
                         .permitAll()
                 )
                 .httpBasic(Customizer.withDefaults())
-                .logout(logout -> logout.logoutSuccessUrl("/"));
+                .logout(logout -> logout.logoutSuccessUrl("/"))
+                .sessionManagement(session->session
+                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                                .sessionFixation().changeSessionId()
+                                .invalidSessionUrl("/login")
+                                .maximumSessions(1).maxSessionsPreventsLogin(true)//세션 점유시 추가 로그인 불가
+                        )
+                ;
         SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
         return http.build();
     }
