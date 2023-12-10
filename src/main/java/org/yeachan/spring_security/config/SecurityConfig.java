@@ -13,6 +13,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
@@ -69,6 +70,12 @@ public class SecurityConfig {
                                 .invalidSessionUrl("/login")
                                 .maximumSessions(1).maxSessionsPreventsLogin(true)//세션 점유시 추가 로그인 불가
                         )
+                .exceptionHandling(exceptionHandle ->exceptionHandle.accessDeniedHandler((request, response, accessDeniedException) -> {
+                    UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+                    String username=principal.getUsername();
+                    System.out.println(username+"is denied to access "+request.getRequestURI());
+                    response.sendRedirect("/access-denied");
+                }) )
                 ;
         SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
         return http.build();
