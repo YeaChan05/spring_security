@@ -19,9 +19,11 @@ import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
+import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
 import org.springframework.security.web.savedrequest.NullRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.yeachan.spring_security.account.AccountService;
+import org.yeachan.spring_security.common.LoggingFilter;
 
 import java.util.function.Supplier;
 
@@ -51,6 +53,8 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         RequestCache nullRequestCache = new NullRequestCache();
+        
+        http.addFilterBefore(new LoggingFilter(), WebAsyncManagerIntegrationFilter.class);
 
         http.authorizeHttpRequests(registry ->//http 요청에 대한 인가 설정
                                 registry.requestMatchers("/", "/info", "/account/**", "/signup").permitAll()
